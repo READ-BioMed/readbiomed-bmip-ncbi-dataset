@@ -63,18 +63,23 @@ public class EntrezTaxonomyDocuments {
 	private static Elements getIds(String url) throws IOException, InterruptedException {
 		Document doc = queryNCBI(url);
 
-		Element result = doc.getElementsByTag("eSearchResult").first();
-		int count = Integer.parseInt(result.getElementsByTag("Count").first().text());
-		int retMax = Integer.parseInt(result.getElementsByTag("RetMax").first().text());
+		try {
+			Element result = doc.getElementsByTag("eSearchResult").first();
+			int count = Integer.parseInt(result.getElementsByTag("Count").first().text());
+			int retMax = Integer.parseInt(result.getElementsByTag("RetMax").first().text());
 
-		if (count > retMax) {
-			doc = queryNCBI(url + "&retmax=" + count);
-			result = doc.getElementsByTag("eSearchResult").first();
-			count = Integer.parseInt(result.getElementsByTag("Count").first().text());
-		}
+			if (count > retMax) {
+				doc = queryNCBI(url + "&retmax=" + count);
+				result = doc.getElementsByTag("eSearchResult").first();
+				count = Integer.parseInt(result.getElementsByTag("Count").first().text());
+			}
 
-		if (count > 0) {
-			return result.getElementsByTag("IdList").first().getElementsByTag("Id");
+			if (count > 0) {
+				return result.getElementsByTag("IdList").first().getElementsByTag("Id");
+			}
+		} catch (Exception e) {
+			System.err.println(url);
+			e.printStackTrace();
 		}
 
 		return null;
@@ -186,7 +191,7 @@ public class EntrezTaxonomyDocuments {
 							}
 						}
 					}
-					
+
 					break;
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -194,10 +199,11 @@ public class EntrezTaxonomyDocuments {
 				Thread.sleep(250);
 				count--;
 			}
-			
-			if (count == 0)
-			{ throw new IOException("We tried too many times"); }
-			
+
+			if (count == 0) {
+				throw new IOException("We tried too many times");
+			}
+
 			Thread.sleep(250);
 
 			// Get PMIDs

@@ -11,9 +11,11 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 import java.util.zip.GZIPOutputStream;
 
 import javax.xml.bind.JAXBContext;
@@ -119,17 +121,56 @@ public class BuildDataset {
 				NCBIEntry entry = (NCBIEntry) um.unmarshal(new FileReader(file));
 				System.out.println(entry.getScientificName());
 
-				for (String pmid : entry.getMeSHPMIDs()) {
-					getDocumentEntry(documentMap, pmid).getMeSHTaxon().add(entry.getId());
-				}
+				String root = entry.getId();
 
-				for (String pmid : entry.getGeneBankPMIDs()) {
-					getDocumentEntry(documentMap, pmid).getGeneBankTaxon().add(entry.getId());
+				Queue<NCBIEntry> deque = new ArrayDeque<NCBIEntry>();
+				deque.add(entry);
+
+				while (deque.size() > 0) {
+                    NCBIEntry e = deque.poll();
+					for (String pmid : e.getMeSHPMIDs()) {
+						getDocumentEntry(documentMap, pmid).getMeSHTaxon().add(e.getId());
+					}
+
+					for (String pmid : e.getGeneBankPMIDs()) {
+						getDocumentEntry(documentMap, pmid).getGeneBankTaxon().add(e.getId());
+					}
+					
+					deque.addAll(e.getChildren());
 				}
 			}
 		}
-		
+
 		return documentMap;
+	}
+
+	public static Map<String, String> readRootTaxonomyMapping(String folderName)
+			throws JAXBException, FileNotFoundException {
+
+		Map<String, String> rootTaxonomyMapping = new HashMap<>();
+
+		for (File file : new File(folderName).listFiles()) {
+			if (file.getName().endsWith(".xml")) {
+				JAXBContext context = JAXBContext.newInstance(NCBIEntry.class);
+				Unmarshaller um = context.createUnmarshaller();
+				NCBIEntry entry = (NCBIEntry) um.unmarshal(new FileReader(file));
+				System.out.println(entry.getScientificName());
+
+				String root = entry.getId();
+
+				rootTaxonomyMapping.put(root, root);
+
+				Queue<NCBIEntry> deque = new ArrayDeque<NCBIEntry>(entry.getChildren());
+
+				while (deque.size() > 0) {
+					NCBIEntry e = deque.poll();
+					rootTaxonomyMapping.put(e.getId(), root);
+					deque.addAll(e.getChildren());
+				}
+			}
+		}
+
+		return rootTaxonomyMapping;
 	}
 
 	// To consider
@@ -145,7 +186,7 @@ public class BuildDataset {
 	public static void main(String[] argc) throws JAXBException, IOException, InterruptedException {
 		String inputFolderName = argc[0];
 		String outputFolder = argc[1];
-		
+
 		Map<String, DocumentEntry> documentMap = readDocumentEntries(inputFolderName);
 
 		System.out.println("Unique documents: " + documentMap.size());
