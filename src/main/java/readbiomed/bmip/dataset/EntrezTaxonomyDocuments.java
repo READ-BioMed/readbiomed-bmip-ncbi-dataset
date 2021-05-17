@@ -116,7 +116,7 @@ public class EntrezTaxonomyDocuments {
 
 		int count = Integer.parseInt(result.getElementsByTag("Count").first().text());
 
-		if (count == 1) {
+		if (count == 1 && result.getElementsByTag("ErrorList").toString().length() == 0) {
 			return result.getElementsByTag("IdList").first().getElementsByTag("Id").text();
 		} else {
 			// Check for any name
@@ -127,7 +127,7 @@ public class EntrezTaxonomyDocuments {
 
 			int count2 = Integer.parseInt(result2.getElementsByTag("Count").first().text());
 
-			if (count2 == 1) {
+			if (count2 == 1 && result2.getElementsByTag("ErrorList").toString().length() == 0) {
 				return result2.getElementsByTag("IdList").first().getElementsByTag("Id").text();
 			}
 		}
@@ -252,11 +252,12 @@ public class EntrezTaxonomyDocuments {
 			try (BufferedReader b = new BufferedReader(new FileReader(pathogenFile))) {
 
 				String line;
+				boolean processed = false;
 				while ((line = b.readLine()) != null) {
 					String pathogenName = line.replaceAll("/", "-").trim();
 
 					if (!new File(outputFolder, pathogenName + ".xml").exists()) {
-
+						processed = true;
 						System.out.println("*" + pathogenName + "*");
 						// For each species
 						NCBIEntry e = taxonomyDocuments(pathogenName);
@@ -274,6 +275,11 @@ public class EntrezTaxonomyDocuments {
 						// Unmarshaller um = context.createUnmarshaller();
 						// NCBIEntry out = (NCBIEntry) um.unmarshal(new StringReader(sw.toString()));
 					}
+				}
+
+				if (!processed) {
+					System.out.println("Finished processing");
+					break;
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

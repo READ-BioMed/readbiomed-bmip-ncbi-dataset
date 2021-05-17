@@ -129,11 +129,11 @@ public class BuildDataset {
 				while (deque.size() > 0) {
                     NCBIEntry e = deque.poll();
 					for (String pmid : e.getMeSHPMIDs()) {
-						getDocumentEntry(documentMap, pmid).getMeSHTaxon().add(e.getId());
+						getDocumentEntry(documentMap, pmid).getMeSHTaxon().add(root);
 					}
 
 					for (String pmid : e.getGeneBankPMIDs()) {
-						getDocumentEntry(documentMap, pmid).getGeneBankTaxon().add(e.getId());
+						getDocumentEntry(documentMap, pmid).getGeneBankTaxon().add(root);
 					}
 					
 					deque.addAll(e.getChildren());
