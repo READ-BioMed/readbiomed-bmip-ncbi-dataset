@@ -19,6 +19,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class EntrezTaxonomyDocuments {
+	
+	private static final int SLEEP_TIME = 50;
+	
 	/*
 	 * Try 10 times to make a call to the NCBI
 	 */
@@ -27,12 +30,12 @@ public class EntrezTaxonomyDocuments {
 		while (count > 0) {
 			try {
 				Document doc = Jsoup.connect(url).timeout(300 * 1000).get();
-				Thread.sleep(250);
+				Thread.sleep(SLEEP_TIME);
 				return doc;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			Thread.sleep(250);
+			Thread.sleep(SLEEP_TIME);
 			count--;
 		}
 
@@ -196,7 +199,7 @@ public class EntrezTaxonomyDocuments {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				Thread.sleep(250);
+				Thread.sleep(SLEEP_TIME);
 				count--;
 			}
 
@@ -204,7 +207,7 @@ public class EntrezTaxonomyDocuments {
 				throw new IOException("We tried too many times");
 			}
 
-			Thread.sleep(250);
+			Thread.sleep(SLEEP_TIME);
 
 			// Get PMIDs
 			Elements esMeSHPMIDs = getIds("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=\""
