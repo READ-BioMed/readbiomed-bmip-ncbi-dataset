@@ -1,4 +1,4 @@
-package readbiomed.bmip.dataset;
+package readbiomed.bmip.dataset.NCBITaxonomy;
 
 import java.io.File;
 import java.io.FileNotFoundException;
