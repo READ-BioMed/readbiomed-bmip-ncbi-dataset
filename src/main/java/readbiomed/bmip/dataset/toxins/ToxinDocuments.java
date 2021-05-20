@@ -14,7 +14,7 @@ import readbiomed.bmip.dataset.utils.Utils;
 
 public class ToxinDocuments {
 
-	private final static String[][] toxins = { { "Abrus abrin toxin", "Abrus abrin toxin" },
+	public final static String[][] toxins = { { "Abrus abrin toxin", "Abrus abrin toxin" },
 			{ "Aflatoxin", "Aflatoxins" }, { "Anatoxin-A", "Anatoxin-A" }, { "Batrachotoxin", "Batrachotoxin" },
 			{ "Botulinum toxin", "Botulinum toxins" }, { "Brevetoxin", "Brevetoxin" }, { "Ciguatoxin", "Ciguatoxins" },
 			{ "Conotoxin", "Conotoxins" }, { "decarbamoylsaxitoxin", "decarbamoylsaxitoxin" },

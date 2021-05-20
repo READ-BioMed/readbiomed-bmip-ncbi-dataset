@@ -14,7 +14,7 @@ import readbiomed.bmip.dataset.utils.Utils;
 
 public class PrPScDocuments {
 
-	private static final String[][] species = { { "cattle", "cattle" }, { "cat", "cats" }, { "deer", "deer" },
+	public static final String[][] species = { { "cattle", "cattle" }, { "cat", "cats" }, { "deer", "deer" },
 			{ "elk", "elk" }, { "goat", "goats" }, { "greater kudu", "greater kudu" }, { "human", "humans" },
 			{ "mink", "mink" }, { "moose", "moose" }, { "mule", "mule" }, { "nyala", "nyala" }, { "onyx", "oryx" }, { "ostrich", "ostrich" },
 			{ "sheep", "sheep" } };
