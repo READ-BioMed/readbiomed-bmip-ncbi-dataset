@@ -1,6 +1,15 @@
 package readbiomed.bmip.dataset.utils;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.zip.GZIPOutputStream;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -29,7 +38,7 @@ public class Utils {
 
 		throw new IOException("We tried too many times");
 	}
-	
+
 	public static Elements getIds(String url) throws IOException, InterruptedException {
 		Document doc = queryNCBI(url);
 
@@ -53,5 +62,72 @@ public class Utils {
 		}
 
 		return null;
+	}
+
+	private static final int maxEFetchPMIDs = 400;
+
+	private static void urlStreamToFile(String queryURL, String fileName) throws InterruptedException, IOException {
+		int count = 10;
+
+		while (count > 0) {
+			try {
+				try (InputStream in = new URL(queryURL).openStream();
+						OutputStream out = new GZIPOutputStream(new FileOutputStream(fileName))) {
+					in.transferTo(out);
+					break;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			Thread.sleep(SLEEP_TIME);
+			count--;
+		}
+
+		if (count == 0) {
+			throw new IOException("We tried too many times");
+		}
+
+		Thread.sleep(SLEEP_TIME);
+	}
+
+	public static void recoverPubMedCitations(Collection<String> pmids, String folderName)
+			throws IOException, InterruptedException {
+		// If folder does not exist, create it
+		Path path = Files.createDirectories(Paths.get(folderName + "/PubMed"));
+
+		StringBuilder pmidList = new StringBuilder();
+
+		int fileCount = 0;
+		int pmidCount = 0;
+		int recovered = 0;
+
+		System.out.println("Recovering " + pmids.size() + " MEDLINE citations");
+		for (String pmid : pmids) {
+			if (pmidCount == maxEFetchPMIDs) {
+				String queryURL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id="
+						+ pmidList.toString().substring(1) + "&retmode=xml";
+
+				urlStreamToFile(queryURL, path.toString() + "/pmids" + fileCount + ".xml.gz");
+
+				fileCount++;
+				pmidCount = 0;
+				pmidList.setLength(0);
+				System.out.println("Recovered " + recovered + " citations.");
+			}
+
+			pmidList.append(",").append(pmid);
+			pmidCount++;
+			recovered++;
+		}
+
+		if (pmidList.length() > 0) {
+			String queryURL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id="
+					+ pmidList.toString().substring(1) + "&retmode=xml";
+
+			urlStreamToFile(queryURL, path.toString() + "/pmids" + fileCount + ".xml.gz");
+		}
+
+		System.out.println("Finished recovering.");
 	}
 }
