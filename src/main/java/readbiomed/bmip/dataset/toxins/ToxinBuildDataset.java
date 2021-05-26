@@ -5,7 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
@@ -16,6 +18,26 @@ import readbiomed.bmip.dataset.utils.Utils;
 
 public class ToxinBuildDataset {
 
+	
+	public static Map<String, Set<String>> readToxinEntries(String folderName)
+			throws JAXBException, FileNotFoundException {
+
+		Map<String, Set<String>> toxinEntries = new HashMap<>();
+
+		for (File file : new File(folderName).listFiles()) {
+			if (file.getName().endsWith(".xml")) {
+				JAXBContext context = JAXBContext.newInstance(ToxinEntry.class);
+				Unmarshaller um = context.createUnmarshaller();
+				ToxinEntry entry = (ToxinEntry) um.unmarshal(new FileReader(file));
+				System.out.println(entry.getName());
+
+				toxinEntries.put("toxin-" + entry.getName().toLowerCase(), new HashSet<>(entry.getMeSHPMIDs()));
+			}
+		}
+
+		return toxinEntries;
+	}
+	
 	public static Collection <String> getPMIDList(String folderName)
 			throws JAXBException, FileNotFoundException {
 

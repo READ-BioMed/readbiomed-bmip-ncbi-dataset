@@ -6,8 +6,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -24,6 +26,37 @@ import readbiomed.bmip.dataset.utils.Utils;
  */
 public class BuildDataset {
 
+	public static Map<String, Set<String>> readPathogenEntries(String folderName)
+			throws JAXBException, FileNotFoundException {
+
+		Map<String, Set<String>> pathogenEntries = new HashMap<>();
+
+		for (File file : new File(folderName).listFiles()) {
+			if (file.getName().endsWith(".xml")) {
+				JAXBContext context = JAXBContext.newInstance(NCBIEntry.class);
+				Unmarshaller um = context.createUnmarshaller();
+				NCBIEntry entry = (NCBIEntry) um.unmarshal(new FileReader(file));
+				System.out.println(entry.getScientificName());
+
+				Set <String> pmids = new HashSet<>(entry.getMeSHPMIDs());
+				
+				pathogenEntries.put("pathogen-" + entry.getId(), pmids);
+				
+				Queue<NCBIEntry> deque = new ArrayDeque<NCBIEntry>();
+				deque.add(entry);
+
+				while (deque.size() > 0) {
+					NCBIEntry e = deque.poll();
+					pmids.addAll(e.getMeSHPMIDs());
+					deque.addAll(e.getChildren());
+				}
+			}
+		}
+
+		return pathogenEntries;
+	}
+
+	
 	private static DocumentEntry getDocumentEntry(Map<String, DocumentEntry> documentMap, String pmid) {
 		DocumentEntry entry = documentMap.get(pmid);
 

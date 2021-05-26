@@ -22,7 +22,7 @@ public class PrPScDocuments {
 	private static void getPrPScDocuments(String speciesFileName, String speciesMH, String outputFolderName)
 			throws IOException, InterruptedException, JAXBException {
 		String query = "\"PrPSc Proteins\"[MH] AND \"" + speciesMH + "\"[MH]";
-		PrPScEntry entry = new PrPScEntry(speciesMH, query);
+		PrPScEntry entry = new PrPScEntry(speciesFileName, query);
 
 		Elements esMeSHPMIDs = Utils
 				.getIds("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=" + query);
