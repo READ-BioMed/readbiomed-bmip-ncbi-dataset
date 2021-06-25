@@ -40,7 +40,7 @@ public class BuildDataset {
 
 				Set <String> pmids = new HashSet<>(entry.getMeSHPMIDs());
 				
-				pathogenEntries.put("pathogen-" + entry.getId(), pmids);
+				pathogenEntries.put("ncbi-" + entry.getId(), pmids);
 				
 				Queue<NCBIEntry> deque = new ArrayDeque<NCBIEntry>();
 				deque.add(entry);
