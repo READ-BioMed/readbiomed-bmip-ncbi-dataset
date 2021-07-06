@@ -25,4 +25,12 @@
             </repositories>
         </profile>
     </profiles>
+          
+          <servers>
+    <server>
+      <id>github</id>
+      <username>aalbahem</username>
+      <password>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</password>
+    </server>
+  </servers>
 </settings>
