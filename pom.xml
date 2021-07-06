@@ -44,4 +44,14 @@
 			<version>1.10.1</version>
 		</dependency>
 	</dependencies>
+	
+<distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub package publish</name>
+      <url>https://maven.pkg.github.com/READ-BioMed/readbiomed-bmip-ncbi-dataset</url>
+    </repository>
+  </distributionManagement>
+
+	
 </project>
