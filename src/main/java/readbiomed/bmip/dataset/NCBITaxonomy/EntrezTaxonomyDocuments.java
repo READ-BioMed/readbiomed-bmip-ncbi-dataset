@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -17,9 +18,13 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 import readbiomed.bmip.dataset.utils.Utils;
 
-public class EntrezTaxonomyDocuments {
+@Command(name = "EntrezTaxonomyDocuments", mixinStandardHelpOptions = true, version = "EntrezTaxonomyDocuments 0.1", description = "Recover information about viruses and bacteria from NCBI.")
+public class EntrezTaxonomyDocuments implements Callable<Integer> {
 
 	private static String getScientificName(String id) throws IOException, InterruptedException {
 		Document doc = Utils
@@ -202,13 +207,15 @@ public class EntrezTaxonomyDocuments {
 		return null;
 	}
 
-	public static void main(String[] argc) throws JAXBException, IOException, InterruptedException {
-		// Open CSV file and read species names
-		String pathogenFile = argc[0];
-		String outputFolder = argc[1];
+	@Parameters(index = "0", description = "File with the list of pathogens, one per line.")
+	private File pathogenFile;
 
+	@Parameters(index = "1", description = "Folder where the output will be stored.")
+	private File outputFolder;
+
+	@Override
+	public Integer call() throws Exception {
 		while (true)
-
 			try (BufferedReader b = new BufferedReader(new FileReader(pathogenFile))) {
 
 				String line;
@@ -231,9 +238,6 @@ public class EntrezTaxonomyDocuments {
 						Marshaller m = context.createMarshaller();
 						m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 						m.marshal(e, output);
-
-						// Unmarshaller um = context.createUnmarshaller();
-						// NCBIEntry out = (NCBIEntry) um.unmarshal(new StringReader(sw.toString()));
 					}
 				}
 
@@ -244,5 +248,11 @@ public class EntrezTaxonomyDocuments {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+		return 0;
+	}
+
+	public static void main(String[] argc) throws JAXBException, IOException, InterruptedException {
+		int exitCode = new CommandLine(new EntrezTaxonomyDocuments()).execute(argc);
+        System.exit(exitCode);
 	}
 }

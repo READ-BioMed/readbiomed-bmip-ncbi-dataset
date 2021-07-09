@@ -2,6 +2,7 @@ package readbiomed.bmip.dataset.PrPSc;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.Callable;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -10,14 +11,18 @@ import javax.xml.bind.Marshaller;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 import readbiomed.bmip.dataset.utils.Utils;
 
-public class PrPScDocuments {
+@Command(name = "PrPScDocuments", mixinStandardHelpOptions = true, version = "PrPScDocuments 0.1", description = "Recover information about PrPSc prions from NCBI.")
+public class PrPScDocuments implements Callable<Integer> {
 
 	public static final String[][] species = { { "cattle", "cattle" }, { "cat", "cats" }, { "deer", "deer" },
 			{ "elk", "elk" }, { "goat", "goats" }, { "greater kudu", "greater kudu" }, { "human", "humans" },
-			{ "mink", "mink" }, { "moose", "moose" }, { "mule", "mule" }, { "nyala", "nyala" }, { "onyx", "oryx" }, { "ostrich", "ostrich" },
-			{ "sheep", "sheep" } };
+			{ "mink", "mink" }, { "moose", "moose" }, { "mule", "mule" }, { "nyala", "nyala" }, { "onyx", "oryx" },
+			{ "ostrich", "ostrich" }, { "sheep", "sheep" } };
 
 	private static void getPrPScDocuments(String speciesFileName, String speciesMH, String outputFolderName)
 			throws IOException, InterruptedException, JAXBException {
@@ -39,12 +44,20 @@ public class PrPScDocuments {
 		m.marshal(entry, output);
 	}
 
-	public static void main(String[] argc) throws IOException, InterruptedException, JAXBException {
-		String outputFolderName = argc[0];
+	@Parameters(index = "0", description = "Folder where the output will be stored.")
+	private String outputFolderName;
 
-		for (String [] s : species) {
+	@Override
+	public Integer call() throws Exception {
+		for (String[] s : species) {
 			System.out.println("*" + s[0] + "*");
 			getPrPScDocuments(s[0], s[1], outputFolderName);
 		}
+		return 0;
+	}
+
+	public static void main(String[] argc) throws IOException, InterruptedException, JAXBException {
+		int exitCode = new CommandLine(new PrPScDocuments()).execute(argc);
+		System.exit(exitCode);
 	}
 }

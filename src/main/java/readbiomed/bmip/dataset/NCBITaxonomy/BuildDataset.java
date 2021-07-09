@@ -10,11 +10,15 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 import readbiomed.bmip.dataset.utils.Utils;
 
 /**
@@ -24,7 +28,8 @@ import readbiomed.bmip.dataset.utils.Utils;
  * @author Antonio Jimeno Yepes (antonio.jimeno@gmail.com)
  *
  */
-public class BuildDataset {
+@Command(name = "BuilDataset", mixinStandardHelpOptions = true, version = "BuilDataset 0.1", description = "Builds a collection of MEDLINE citations for viruses and bacteria based on recovered information from NCBI.")
+public class BuildDataset implements Callable<Integer> {
 
 	public static Map<String, Set<String>> readPathogenEntries(String folderName)
 			throws JAXBException, FileNotFoundException {
@@ -38,10 +43,10 @@ public class BuildDataset {
 				NCBIEntry entry = (NCBIEntry) um.unmarshal(new FileReader(file));
 				System.out.println(entry.getScientificName());
 
-				Set <String> pmids = new HashSet<>(entry.getMeSHPMIDs());
-				
+				Set<String> pmids = new HashSet<>(entry.getMeSHPMIDs());
+
 				pathogenEntries.put("ncbi-" + entry.getId(), pmids);
-				
+
 				Queue<NCBIEntry> deque = new ArrayDeque<NCBIEntry>();
 				deque.add(entry);
 
@@ -56,7 +61,6 @@ public class BuildDataset {
 		return pathogenEntries;
 	}
 
-	
 	private static DocumentEntry getDocumentEntry(Map<String, DocumentEntry> documentMap, String pmid) {
 		DocumentEntry entry = documentMap.get(pmid);
 
@@ -132,6 +136,20 @@ public class BuildDataset {
 		return rootTaxonomyMapping;
 	}
 
+	@Parameters(index = "0", description = "Folder where the XML of the recovered pathogens from NCBI are placed.")
+	private String inputFolderName;
+
+	@Parameters(index = "1", description = "The folder there the MEDLINE citations will be stored in.")
+	private String outputFolder;
+
+	@Override
+	public Integer call() throws Exception {
+		Map<String, DocumentEntry> documentMap = readDocumentEntries(inputFolderName);
+		System.out.println("Unique documents: " + documentMap.size());
+		Utils.recoverPubMedCitations(documentMap.keySet(), outputFolder);
+		return 0;
+	}
+
 	// To consider
 	// 1. A given citation or full text document might be related to more than one
 	// pathogen
@@ -143,15 +161,7 @@ public class BuildDataset {
 	// 4. PubMed citations might not contain an abstract
 	// 5. Some PubMed Central documents might not be in the Open Access set
 	public static void main(String[] argc) throws JAXBException, IOException, InterruptedException {
-		String inputFolderName = argc[0];
-		String outputFolder = argc[1];
-
-		Map<String, DocumentEntry> documentMap = readDocumentEntries(inputFolderName);
-
-		System.out.println("Unique documents: " + documentMap.size());
-
-		// Collect documents in independent files. One folder for PMIDs and another one
-		// for PMCIDs
-		Utils.recoverPubMedCitations(documentMap.keySet(), outputFolder);
+		int exitCode = new CommandLine(new BuildDataset()).execute(argc);
+        System.exit(exitCode);
 	}
 }

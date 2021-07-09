@@ -2,6 +2,7 @@ package readbiomed.bmip.dataset.toxins;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.Callable;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -10,9 +11,13 @@ import javax.xml.bind.Marshaller;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Parameters;
 import readbiomed.bmip.dataset.utils.Utils;
 
-public class ToxinDocuments {
+@Command(name = "ToxinDocuments", mixinStandardHelpOptions = true, version = "ToxinDocuments 0.1", description = "Recover information about toxins from NCBI.")
+public class ToxinDocuments implements Callable<Integer> {
 
 	public final static String[][] toxins = { { "Abrus abrin toxin", "Abrus abrin toxin" },
 			{ "Aflatoxin", "Aflatoxins" }, { "Anatoxin-A", "Anatoxin-A" }, { "Batrachotoxin", "Batrachotoxin" },
@@ -43,12 +48,20 @@ public class ToxinDocuments {
 		m.marshal(entry, output);
 	}
 
-	public static void main(String[] argc) throws IOException, InterruptedException, JAXBException {
-		String outputFolderName = argc[0];
+	@Parameters(index = "0", description = "Folder where the output will be stored.")
+	private String outputFolderName;
 
+	@Override
+	public Integer call() throws Exception {
 		for (String[] toxin : toxins) {
 			System.out.println("*" + toxin[0] + "*");
 			getToxinDocuments(toxin[0], toxin[1], outputFolderName);
 		}
+		return 0;
+	}
+
+	public static void main(String[] argc) throws IOException, InterruptedException, JAXBException {
+		int exitCode = new CommandLine(new ToxinDocuments()).execute(argc);
+		System.exit(exitCode);
 	}
 }
