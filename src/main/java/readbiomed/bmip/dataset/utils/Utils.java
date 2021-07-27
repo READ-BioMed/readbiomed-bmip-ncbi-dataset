@@ -61,7 +61,7 @@ public class Utils {
 				if (count > 0) {
 					return result.getElementsByTag("IdList").first().getElementsByTag("Id");
 				}
-				break;
+				return null;
 			} catch (Exception e) {
 				System.err.println(url);
 				e.printStackTrace();
