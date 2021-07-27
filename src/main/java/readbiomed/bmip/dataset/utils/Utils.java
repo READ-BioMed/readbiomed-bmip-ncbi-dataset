@@ -17,10 +17,12 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class Utils {
-	public static final int SLEEP_TIME = 50;
+	public static final int SLEEP_TIME = 100;
+	
+	public static final int TRY_TIMES = 20;
 
 	/*
-	 * Try 10 times to make a call to the NCBI
+	 * Try n times to make a call to the NCBI
 	 */
 	public static Document queryNCBI(String url) throws IOException, InterruptedException {
 		int count = 10;
@@ -40,28 +42,36 @@ public class Utils {
 	}
 
 	public static Elements getIds(String url) throws IOException, InterruptedException {
-		Document doc = queryNCBI(url);
+		int ecount = 10;
 
-		try {
-			Element result = doc.getElementsByTag("eSearchResult").first();
-			int count = Integer.parseInt(result.getElementsByTag("Count").first().text());
-			int retMax = Integer.parseInt(result.getElementsByTag("RetMax").first().text());
+		while (ecount > 0) {
+			Document doc = queryNCBI(url);
 
-			if (count > retMax) {
-				doc = queryNCBI(url + "&retmax=" + count);
-				result = doc.getElementsByTag("eSearchResult").first();
-				count = Integer.parseInt(result.getElementsByTag("Count").first().text());
+			try {
+				Element result = doc.getElementsByTag("eSearchResult").first();
+				int count = Integer.parseInt(result.getElementsByTag("Count").first().text());
+				int retMax = Integer.parseInt(result.getElementsByTag("RetMax").first().text());
+
+				if (count > retMax) {
+					doc = queryNCBI(url + "&retmax=" + count);
+					result = doc.getElementsByTag("eSearchResult").first();
+					count = Integer.parseInt(result.getElementsByTag("Count").first().text());
+				}
+
+				if (count > 0) {
+					return result.getElementsByTag("IdList").first().getElementsByTag("Id");
+				}
+				break;
+			} catch (Exception e) {
+				System.err.println(url);
+				e.printStackTrace();
 			}
-
-			if (count > 0) {
-				return result.getElementsByTag("IdList").first().getElementsByTag("Id");
-			}
-		} catch (Exception e) {
-			System.err.println(url);
-			e.printStackTrace();
+			
+			ecount--;
+			Thread.sleep(SLEEP_TIME);
 		}
 
-		return null;
+		throw new IOException("We tried too many times");
 	}
 
 	private static final int maxEFetchPMIDs = 400;

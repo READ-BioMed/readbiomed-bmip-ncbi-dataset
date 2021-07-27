@@ -226,6 +226,7 @@ public class EntrezTaxonomyDocuments implements Callable<Integer> {
 					if (!new File(outputFolder, pathogenName + ".xml").exists()) {
 						processed = true;
 						System.out.println("*" + pathogenName + "*");
+						System.err.println("*" + pathogenName + "*");
 						// For each species
 						NCBIEntry e = taxonomyDocuments(pathogenName);
 
@@ -246,6 +247,7 @@ public class EntrezTaxonomyDocuments implements Callable<Integer> {
 					break;
 				}
 			} catch (Exception e) {
+				System.err.println("Out of the loop.");
 				e.printStackTrace();
 			}
 		return 0;
