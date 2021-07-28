@@ -103,6 +103,7 @@ public class EntrezTaxonomyDocuments implements Callable<Integer> {
 						entry.getChildren().add(subspecies);
 					}
 				}
+				break;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -177,6 +178,7 @@ public class EntrezTaxonomyDocuments implements Callable<Integer> {
 						entry.getPMCIDs().add(e.text());
 					}
 				}
+				break;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -218,6 +220,8 @@ public class EntrezTaxonomyDocuments implements Callable<Integer> {
 
 					entry.getGeneBankPMIDs().addAll(pmids);
 				}
+				
+				break;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -268,6 +272,7 @@ public class EntrezTaxonomyDocuments implements Callable<Integer> {
 						}
 					}
 				}
+				break;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
