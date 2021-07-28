@@ -27,124 +27,224 @@ import readbiomed.bmip.dataset.utils.Utils;
 public class EntrezTaxonomyDocuments implements Callable<Integer> {
 
 	private static String getScientificName(String id) throws IOException, InterruptedException {
-		Document doc = Utils
-				.queryNCBI("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=taxonomy&id=" + id);
-		return doc.getElementsByTag("TaxaSet").first().getElementsByTag("Taxon").first()
-				.getElementsByTag("ScientificName").first().text();
+		int ecount = 10;
+
+		String url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=taxonomy&id=" + id;
+
+		while (ecount > 0) {
+			try {
+				Document doc = Utils.queryNCBI(url);
+				return doc.getElementsByTag("TaxaSet").first().getElementsByTag("Taxon").first()
+						.getElementsByTag("ScientificName").first().text();
+			} catch (Exception e) {
+				System.err.println(url);
+				e.printStackTrace();
+			}
+			ecount--;
+			Thread.sleep(Utils.SLEEP_TIME);
+		}
+
+		return null;
 	}
 
 	private static String getOtherNames(String id) throws IOException, InterruptedException {
-		Document doc = Utils
-				.queryNCBI("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=taxonomy&id=" + id);
-		Elements otherNames = doc.getElementsByTag("TaxaSet").first().getElementsByTag("Taxon").first()
-				.getElementsByTag("OtherNames");
+		int ecount = 10;
 
-		if (otherNames != null) {
-			Element on = otherNames.first();
-			if (otherNames.first() != null) {
-				return on.toString();
+		String url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=taxonomy&id=" + id;
+
+		while (ecount > 0) {
+			try {
+				Document doc = Utils.queryNCBI(url);
+				Elements otherNames = doc.getElementsByTag("TaxaSet").first().getElementsByTag("Taxon").first()
+						.getElementsByTag("OtherNames");
+
+				if (otherNames != null) {
+					Element on = otherNames.first();
+					if (otherNames.first() != null) {
+						return on.toString();
+					}
+				}
+				return null;
+			} catch (Exception e) {
+				System.err.println(url);
+				e.printStackTrace();
 			}
+
+			ecount--;
+			Thread.sleep(Utils.SLEEP_TIME);
 		}
 
 		return null;
 	}
 
 	private static void getSubSpecies(NCBIEntry entry) throws IOException, InterruptedException {
-		// Check for children and create entry
-		Elements es = Utils.getIds("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=taxonomy&term=\""
-				+ entry.getScientificName() + "\"[next level]");
+		int ecount = 10;
 
-		if (es != null) {
-			for (Element e : es) {
-				String id = e.text();
-				// Get scientific name
-				NCBIEntry subspecies = new NCBIEntry(id, getScientificName(id));
-				subspecies.setOtherNames(getOtherNames(subspecies.getId()));
-				getPMCIDs(subspecies);
-				getGeneBankPMIDs(subspecies);
-				getMeSHIds(subspecies);
+		while (ecount > 0) {
+			try {
+				// Check for children and create entry
+				Elements es = Utils
+						.getIds("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=taxonomy&term=\""
+								+ entry.getScientificName() + "\"[next level]");
 
-				// Add subspecies and repeat the process
-				getSubSpecies(subspecies);
+				if (es != null) {
+					for (Element e : es) {
+						String id = e.text();
+						// Get scientific name
+						NCBIEntry subspecies = new NCBIEntry(id, getScientificName(id));
+						subspecies.setOtherNames(getOtherNames(subspecies.getId()));
+						getPMCIDs(subspecies);
+						getGeneBankPMIDs(subspecies);
+						getMeSHIds(subspecies);
 
-				entry.getChildren().add(subspecies);
+						// Add subspecies and repeat the process
+						getSubSpecies(subspecies);
+
+						entry.getChildren().add(subspecies);
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
+			Thread.sleep(Utils.SLEEP_TIME);
+			ecount--;
 		}
+
+		if (ecount == 0) {
+			throw new IOException("We tried too many times");
+		}
+
+		Thread.sleep(Utils.SLEEP_TIME);
 	}
 
 	private static String getId(String speciesName) throws IOException, InterruptedException {
-		Document doc = Utils.queryNCBI("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=taxonomy&term=\""
-				+ speciesName + "\"[scientific name]");
+		int ecount = 10;
 
-		Element result = doc.getElementsByTag("eSearchResult").first();
+		while (ecount > 0) {
+			try {
+				Document doc = Utils
+						.queryNCBI("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=taxonomy&term=\""
+								+ speciesName + "\"[scientific name]");
 
-		int count = Integer.parseInt(result.getElementsByTag("Count").first().text());
+				Element result = doc.getElementsByTag("eSearchResult").first();
 
-		if (count == 1 && result.getElementsByTag("ErrorList").toString().length() == 0) {
-			return result.getElementsByTag("IdList").first().getElementsByTag("Id").text();
-		} else {
-			// Check for any name
-			Document doc2 = Utils
-					.queryNCBI("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=taxonomy&term=\""
-							+ speciesName + "\"");
+				int count = Integer.parseInt(result.getElementsByTag("Count").first().text());
 
-			Element result2 = doc2.getElementsByTag("eSearchResult").first();
+				if (count == 1 && result.getElementsByTag("ErrorList").toString().length() == 0) {
+					return result.getElementsByTag("IdList").first().getElementsByTag("Id").text();
+				} else {
+					// Check for any name
+					Document doc2 = Utils
+							.queryNCBI("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=taxonomy&term=\""
+									+ speciesName + "\"");
 
-			int count2 = Integer.parseInt(result2.getElementsByTag("Count").first().text());
+					Element result2 = doc2.getElementsByTag("eSearchResult").first();
 
-			if (count2 == 1 && result2.getElementsByTag("ErrorList").toString().length() == 0) {
-				return result2.getElementsByTag("IdList").first().getElementsByTag("Id").text();
+					int count2 = Integer.parseInt(result2.getElementsByTag("Count").first().text());
+
+					if (count2 == 1 && result2.getElementsByTag("ErrorList").toString().length() == 0) {
+						return result2.getElementsByTag("IdList").first().getElementsByTag("Id").text();
+					}
+				}
+
+				return null;
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
+			Thread.sleep(Utils.SLEEP_TIME);
+			ecount--;
 		}
+
+		if (ecount == 0) {
+			throw new IOException("We tried too many times");
+		}
+
+		Thread.sleep(Utils.SLEEP_TIME);
 
 		return null;
 	}
 
 	private static void getPMCIDs(NCBIEntry entry) throws IOException, InterruptedException {
-		Elements es = Utils.getIds("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pmc&term=txid"
-				+ entry.getId() + "[Organism]");
+		int count = 10;
 
-		if (es != null) {
-			for (Element e : es) {
-				entry.getPMCIDs().add(e.text());
+		while (count > 0) {
+			try {
+				Elements es = Utils.getIds("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pmc&term=txid"
+						+ entry.getId() + "[Organism]");
+
+				if (es != null) {
+					for (Element e : es) {
+						entry.getPMCIDs().add(e.text());
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
+			Thread.sleep(Utils.SLEEP_TIME);
+			count--;
 		}
+
+		if (count == 0) {
+			throw new IOException("We tried too many times");
+		}
+
+		Thread.sleep(Utils.SLEEP_TIME);
 	}
 
 	private static void getGeneBankPMIDs(NCBIEntry entry) throws IOException, InterruptedException {
-		// Find the genes
-		Elements esGenes = Utils.getIds(
-				"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=" + entry.getId() + "[TaxID]");
+		int count = 10;
 
-		if (esGenes != null) {
-			Set<String> pmids = new HashSet<>();
+		while (count > 0) {
+			try {
+				// Find the genes
+				Elements esGenes = Utils
+						.getIds("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term="
+								+ entry.getId() + "[TaxID]");
 
-			// Find the PMIDs for each gene
-			for (Element eGene : esGenes) {
-				// Adding a longer time out in case there are many PMIDs to download
-				Document doc = Utils.queryNCBI("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=gene&id="
-						+ eGene.text() + "&format=xml");
+				if (esGenes != null) {
+					Set<String> pmids = new HashSet<>();
 
-				for (Element ePMID : doc.select("PubMedId")) {
-					pmids.add(ePMID.text());
+					// Find the PMIDs for each gene
+					for (Element eGene : esGenes) {
+						// Adding a longer time out in case there are many PMIDs to download
+						Document doc = Utils
+								.queryNCBI("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=gene&id="
+										+ eGene.text() + "&format=xml");
+
+						for (Element ePMID : doc.select("PubMedId")) {
+							pmids.add(ePMID.text());
+						}
+					}
+
+					entry.getGeneBankPMIDs().addAll(pmids);
 				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-
-			entry.getGeneBankPMIDs().addAll(pmids);
+			Thread.sleep(Utils.SLEEP_TIME);
+			count--;
 		}
+
+		if (count == 0) {
+			throw new IOException("We tried too many times");
+		}
+
+		Thread.sleep(Utils.SLEEP_TIME);
 	}
 
 	private static void getMeSHIds(NCBIEntry entry) throws IOException, InterruptedException {
-		// Find the genes
-		Elements esMeSH = Utils.getIds("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=mesh&term=\""
-				+ entry.getScientificName() + "\"[MH]");
+		int count = 10;
 
-		if (esMeSH != null && esMeSH.size() == 1) {
-			// Get MeSH Tree
-			int count = 10;
+		while (count > 0) {
+			try {
+				// Find the genes
+				Elements esMeSH = Utils
+						.getIds("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=mesh&term=\""
+								+ entry.getScientificName() + "\"[MH]");
 
-			while (count > 0) {
-				try {
+				if (esMeSH != null && esMeSH.size() == 1) {
+					// Get MeSH Tree
+
 					try (BufferedReader in = new BufferedReader(new InputStreamReader(
 							new URL("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=mesh&id="
 									+ esMeSH.first().text()).openStream()))) {
@@ -157,31 +257,30 @@ public class EntrezTaxonomyDocuments implements Callable<Integer> {
 						}
 					}
 
-					break;
-				} catch (Exception e) {
-					e.printStackTrace();
+					// Get PMIDs
+					Elements esMeSHPMIDs = Utils
+							.getIds("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=\""
+									+ entry.getScientificName() + "\"[MH]");
+
+					if (esMeSHPMIDs != null) {
+						for (Element eMeSHPMIDs : esMeSHPMIDs) {
+							entry.getMeSHPMIDs().add(eMeSHPMIDs.text());
+						}
+					}
 				}
-				Thread.sleep(Utils.SLEEP_TIME);
-				count--;
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-
-			if (count == 0) {
-				throw new IOException("We tried too many times");
-			}
-
 			Thread.sleep(Utils.SLEEP_TIME);
-
-			// Get PMIDs
-			Elements esMeSHPMIDs = Utils
-					.getIds("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=\""
-							+ entry.getScientificName() + "\"[MH]");
-
-			if (esMeSHPMIDs != null) {
-				for (Element eMeSHPMIDs : esMeSHPMIDs) {
-					entry.getMeSHPMIDs().add(eMeSHPMIDs.text());
-				}
-			}
+			count--;
 		}
+
+		if (count == 0) {
+			throw new IOException("We tried too many times");
+		}
+
+		Thread.sleep(Utils.SLEEP_TIME);
+
 	}
 
 	public static NCBIEntry taxonomyDocuments(String speciesName) throws IOException, InterruptedException {
@@ -255,6 +354,6 @@ public class EntrezTaxonomyDocuments implements Callable<Integer> {
 
 	public static void main(String[] argc) throws JAXBException, IOException, InterruptedException {
 		int exitCode = new CommandLine(new EntrezTaxonomyDocuments()).execute(argc);
-        System.exit(exitCode);
+		System.exit(exitCode);
 	}
 }
