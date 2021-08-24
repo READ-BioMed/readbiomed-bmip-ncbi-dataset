@@ -220,7 +220,7 @@ public class EntrezTaxonomyDocuments implements Callable<Integer> {
 
 					entry.getGeneBankPMIDs().addAll(pmids);
 				}
-				
+
 				break;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -288,17 +288,21 @@ public class EntrezTaxonomyDocuments implements Callable<Integer> {
 
 	}
 
-	public static NCBIEntry taxonomyDocuments(String speciesName) throws IOException, InterruptedException {
+	public NCBIEntry taxonomyDocuments(String speciesName) throws IOException, InterruptedException {
 		String id = getId(speciesName);
 
 		if (id != null) {
 			NCBIEntry entry = new NCBIEntry(id, speciesName);
 			entry.setOtherNames(getOtherNames(entry.getId()));
 			getPMCIDs(entry);
-			getGeneBankPMIDs(entry);
+			if (getJustMeSH.equalsIgnoreCase("N")) {
+				getGeneBankPMIDs(entry);
+			}
 			getMeSHIds(entry);
 
-			getSubSpecies(entry);
+			if (getJustMeSH.equalsIgnoreCase("N")) {
+				getSubSpecies(entry);
+			}
 
 			return entry;
 		}
@@ -316,6 +320,9 @@ public class EntrezTaxonomyDocuments implements Callable<Integer> {
 
 	@Parameters(index = "1", description = "Folder where the output will be stored.")
 	private File outputFolder;
+
+	@Parameters(index = "2", description = "Recover just MeSH [Y for recovering just MeSH].", defaultValue = "N")
+	private String getJustMeSH;
 
 	@Override
 	public Integer call() throws Exception {
