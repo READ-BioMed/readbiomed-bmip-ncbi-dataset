@@ -218,7 +218,7 @@ public class EntrezTaxonomyDocuments implements Callable<Integer> {
 						}
 					}
 
-					entry.getGeneBankPMIDs().addAll(pmids);
+					entry.getGenBankPMIDs().addAll(pmids);
 				}
 
 				break;

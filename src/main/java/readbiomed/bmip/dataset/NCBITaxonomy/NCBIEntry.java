@@ -18,8 +18,8 @@ public class NCBIEntry {
 	@XmlElement(name = "PMCID")
 	private List<String> pmcids = new ArrayList<String>();
 
-	@XmlElement(name = "GeneBankPMID")
-	private List<String> geneBankPMIDs = new ArrayList<String>();
+	@XmlElement(name = "GenBankPMID")
+	private List<String> genBankPMIDs = new ArrayList<String>();
 
 	private String meshTree = null;
 
@@ -66,8 +66,8 @@ public class NCBIEntry {
 		return pmcids;
 	}
 
-	public List<String> getGeneBankPMIDs() {
-		return geneBankPMIDs;
+	public List<String> getGenBankPMIDs() {
+		return genBankPMIDs;
 	}
 
 	public String getMeSHTree() {

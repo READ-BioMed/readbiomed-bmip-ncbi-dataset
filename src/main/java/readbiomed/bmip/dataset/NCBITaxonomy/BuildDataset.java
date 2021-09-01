@@ -95,7 +95,7 @@ public class BuildDataset implements Callable<Integer> {
 						getDocumentEntry(documentMap, pmid).getMeSHTaxon().add(root);
 					}
 
-					for (String pmid : e.getGeneBankPMIDs()) {
+					for (String pmid : e.getGenBankPMIDs()) {
 						getDocumentEntry(documentMap, pmid).getGeneBankTaxon().add(root);
 					}
 
