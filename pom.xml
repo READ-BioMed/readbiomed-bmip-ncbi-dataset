@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>readbiomed</groupId>
-	<artifactId>readbiomed-bmip-ncbi-dataset</artifactId>
+	<artifactId>readbiomed-ncbi-pathogen-dataset-generation</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<build>
 		<plugins>
@@ -53,7 +53,7 @@
 		<repository>
 			<id>github</id>
 			<name>GitHub package publish</name>
-			<url>https://maven.pkg.github.com/READ-BioMed/readbiomed-bmip-ncbi-dataset</url>
+			<url>https://maven.pkg.github.com/READ-BioMed/readbiomed-ncbi-pathogen-dataset-generation</url>
 		</repository>
 	</distributionManagement>
 </project>
