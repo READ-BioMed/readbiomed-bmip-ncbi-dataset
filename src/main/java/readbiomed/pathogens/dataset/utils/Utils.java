@@ -1,4 +1,4 @@
-package readbiomed.bmip.dataset.utils;
+package readbiomed.pathogens.dataset.utils;
 
 import java.io.FileOutputStream;
 import java.io.IOException;

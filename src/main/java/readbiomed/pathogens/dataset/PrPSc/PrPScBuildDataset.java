@@ -1,4 +1,4 @@
-package readbiomed.bmip.dataset.PrPSc;
+package readbiomed.pathogens.dataset.PrPSc;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,7 +18,7 @@ import javax.xml.bind.Unmarshaller;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
-import readbiomed.bmip.dataset.utils.Utils;
+import readbiomed.pathogens.dataset.utils.Utils;
 
 @Command(name = "PrPScBuildDataset", mixinStandardHelpOptions = true, version = "PrPScBuildDataset 0.1", description = "Builds a collection of MEDLINE citations for PrPSc prions based on information obtained using MeSH.")
 public class PrPScBuildDataset implements Callable<Integer> {

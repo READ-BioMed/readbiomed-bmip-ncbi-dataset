@@ -1,4 +1,4 @@
-package readbiomed.bmip.dataset.toxins;
+package readbiomed.pathogens.dataset.toxins;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +14,7 @@ import org.jsoup.select.Elements;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
-import readbiomed.bmip.dataset.utils.Utils;
+import readbiomed.pathogens.dataset.utils.Utils;
 
 @Command(name = "ToxinDocuments", mixinStandardHelpOptions = true, version = "ToxinDocuments 0.1", description = "Recover information about toxins from NCBI.")
 public class ToxinDocuments implements Callable<Integer> {

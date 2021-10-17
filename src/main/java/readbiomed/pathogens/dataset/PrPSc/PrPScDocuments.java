@@ -1,4 +1,4 @@
-package readbiomed.bmip.dataset.PrPSc;
+package readbiomed.pathogens.dataset.PrPSc;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +14,7 @@ import org.jsoup.select.Elements;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
-import readbiomed.bmip.dataset.utils.Utils;
+import readbiomed.pathogens.dataset.utils.Utils;
 
 @Command(name = "PrPScDocuments", mixinStandardHelpOptions = true, version = "PrPScDocuments 0.1", description = "Recover information about PrPSc prions from NCBI.")
 public class PrPScDocuments implements Callable<Integer> {

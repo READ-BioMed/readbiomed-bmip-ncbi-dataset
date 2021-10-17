@@ -1,4 +1,4 @@
-package readbiomed.bmip.dataset.PrPSc;
+package readbiomed.pathogens.dataset.PrPSc;
 
 import java.util.ArrayList;
 import java.util.List;

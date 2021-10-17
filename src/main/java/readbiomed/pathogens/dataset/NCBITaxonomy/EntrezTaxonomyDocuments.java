@@ -1,4 +1,4 @@
-package readbiomed.bmip.dataset.NCBITaxonomy;
+package readbiomed.pathogens.dataset.NCBITaxonomy;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -21,7 +21,7 @@ import org.jsoup.select.Elements;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
-import readbiomed.bmip.dataset.utils.Utils;
+import readbiomed.pathogens.dataset.utils.Utils;
 
 @Command(name = "EntrezTaxonomyDocuments", mixinStandardHelpOptions = true, version = "EntrezTaxonomyDocuments 0.1", description = "Recover information about viruses and bacteria from NCBI.")
 public class EntrezTaxonomyDocuments implements Callable<Integer> {

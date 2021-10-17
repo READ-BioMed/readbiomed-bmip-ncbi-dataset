@@ -1,4 +1,4 @@
-package readbiomed.bmip.dataset.toxins;
+package readbiomed.pathogens.dataset.toxins;
 
 import java.util.ArrayList;
 import java.util.List;

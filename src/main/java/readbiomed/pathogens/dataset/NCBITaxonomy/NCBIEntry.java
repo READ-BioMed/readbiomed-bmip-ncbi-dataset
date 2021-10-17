@@ -1,4 +1,4 @@
-package readbiomed.bmip.dataset.NCBITaxonomy;
+package readbiomed.pathogens.dataset.NCBITaxonomy;
 
 import java.util.ArrayList;
 import java.util.List;

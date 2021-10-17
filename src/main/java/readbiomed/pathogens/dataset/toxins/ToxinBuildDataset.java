@@ -1,4 +1,4 @@
-package readbiomed.bmip.dataset.toxins;
+package readbiomed.pathogens.dataset.toxins;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -18,7 +18,7 @@ import javax.xml.bind.Unmarshaller;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
-import readbiomed.bmip.dataset.utils.Utils;
+import readbiomed.pathogens.dataset.utils.Utils;
 
 @Command(name = "ToxinBuildDataset", mixinStandardHelpOptions = true, version = "ToxinBuildDataset 0.1", description = "Builds a collection of MEDLINE citations about toxins based on information obtained using MeSH.")
 public class ToxinBuildDataset implements Callable <Integer> {

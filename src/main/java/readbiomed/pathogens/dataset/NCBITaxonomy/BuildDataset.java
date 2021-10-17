@@ -1,4 +1,4 @@
-package readbiomed.bmip.dataset.NCBITaxonomy;
+package readbiomed.pathogens.dataset.NCBITaxonomy;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,7 +19,7 @@ import javax.xml.bind.Unmarshaller;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
-import readbiomed.bmip.dataset.utils.Utils;
+import readbiomed.pathogens.dataset.utils.Utils;
 
 /**
  * Prepare collection data set based on information previously collected from
