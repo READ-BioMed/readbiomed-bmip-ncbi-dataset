@@ -76,7 +76,7 @@ public class Utils {
 
 	private static final int maxEFetchPMIDs = 400;
 
-	private static void urlStreamToFile(String queryURL, String fileName) throws InterruptedException, IOException {
+	public static void urlStreamToFile(String queryURL, String fileName) throws InterruptedException, IOException {
 		int count = 10;
 
 		while (count > 0) {
