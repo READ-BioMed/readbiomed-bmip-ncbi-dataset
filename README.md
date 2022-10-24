@@ -11,10 +11,30 @@ An example of generated dataset is available [here](https://github.com/READ-BioM
 
 The package has been tested with Java 11 and Maven 3.6.3.
 
-To install it run mvn install after cloning this github repository.
+To install it run `mvn install` after cloning this github repository and moved to the local cloned directory.
 
 # Data sets generation
 
+## Taxonimic pathogens
+
+From the cloned folder, in order to create the files for the taxonomic pathogens using NCBI resources, there are two steps.
+In the first one, a set of XML files are generated from a list of pathogens in a text file, one pathogen per line.
+An output folder needs to be specified as well.
+
+```
+mvn exec:java -Dexec.mainClass="readbiomed.pathogens.dataset.NCBITaxonomy.EntrezTaxonomyDocuments" -Dexec.args="[File_with_list_of_pathogens] [Output_folder]"
+```
+
+In the second set, using the files generated in the previous step as input, citations are collected from MEDLINE and placed in the output folder.
+
+```
+mvn exec:java -Dexec.mainClass="readbiomed.pathogens.dataset.NCBITaxonomy.BuildDataset" -Dexec.args="[Input_folder] [Output_folder]"
+```
+
+## PrPSc prions
+
+
+## Toxins
 
 
 # References
