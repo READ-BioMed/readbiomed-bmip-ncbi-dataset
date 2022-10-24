@@ -12,3 +12,20 @@ An example of generated dataset is available [here](https://github.com/READ-BioM
 The package has been tested with Java 11 and Maven 3.6.3.
 
 To install it run mvn install after cloning this github repository.
+
+# Data sets generation
+
+
+
+# References
+
+If you use this work in your research, remember to cite it:
+
+`
+@article{jimeno2022classifying,
+  title={Classifying literature mentions of biological pathogens as experimentally studied using natural language processing},
+  author={Jimeno Yepes, Antonio and Verspoor, Karin},
+  journal={Journal of Biomedical Semantics},
+  year={2022}
+}
+`
