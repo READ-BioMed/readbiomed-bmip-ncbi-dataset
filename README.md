@@ -68,10 +68,14 @@ mvn exec:java -Dexec.mainClass="readbiomed.pathogens.dataset.toxins.ToxinBuildDa
 If you use this work in your research, remember to cite it. More information about our is available in the following paper.
 
 ```
-@article{jimeno2022classifying,
+@article{jimeno2023classifying,
   title={Classifying literature mentions of biological pathogens as experimentally studied using natural language processing},
   author={Jimeno Yepes, Antonio and Verspoor, Karin},
   journal={Journal of Biomedical Semantics},
-  year={2022}
+  year={2023},
+  volume={14},
+  number={1},
+  doi={10.1186/s13326-023-00282-y},
+  url={https://doi.org/10.1186/s13326-023-00282-y}
 }
 ```
